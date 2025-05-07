@@ -1,4 +1,4 @@
-﻿#define WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <MinHook.h>
 #include <iostream>
@@ -14,12 +14,10 @@ bool(__fastcall* PlayerHasItem_o)(DWORD*, uint32_t, int32_t, DWORD*);
 bool(__fastcall* UserHasItem_o)(DWORD*, int32_t, DWORD*);
 
 bool __stdcall PlayerHasItem_h(DWORD* __this, uint32_t connectionId, int32_t steamItemDefID, DWORD* method) {
-    printf(" Called 1 ");
     return true;
 }
 
 bool __stdcall UserHasItem_h(DWORD* __this, int32_t steamItemDefID, DWORD* method) {
-    printf(" Called 2 ");
     return true;
 }
 
@@ -36,7 +34,6 @@ void(__fastcall* setplayerrank_o)(DWORD*, int32_t, int32_t, int32_t, DWORD*);
 void(__fastcall* setrank_o)(DWORD*, int32_t, DWORD*);
 
 bool __stdcall HasOutfit_h(DWORD* __this, const char* robe, const char* character, DWORD* method) {
-    printf("Outfit Called!\n");
     return true;
 }
 
@@ -81,16 +78,16 @@ DWORD WINAPI MainThread(LPVOID)
     AllocConsole();
     FILE* f;
     freopen_s(&f, "CONOUT$", "w", stdout);
-    std::cout << "[*] DLL Injectée !" << std::endl;
+    std::cout << "[*] DLL Injected !" << std::endl;
 
     uintptr_t gameAssembly = (uintptr_t)GetModuleHandle(L"GameAssembly.dll");
     if (!gameAssembly) {
-        std::cout << "[-] GameAssembly.dll pas trouvé." << std::endl;
+        std::cout << "[-] GameAssembly.dll not found." << std::endl;
         return 1;
     }
 
     if (MH_Initialize() != MH_OK) {
-        std::cout << "[-] MH_Initialize échoué." << std::endl;
+        std::cout << "[-] MH_Initialize failed." << std::endl;
         return 1;
     }
 
@@ -126,28 +123,29 @@ DWORD WINAPI MainThread(LPVOID)
             MH_STATUS createStatus = MH_CreateHook(target, hook.hookFunc, hook.original);
             if (createStatus == MH_OK || createStatus == MH_ERROR_ALREADY_CREATED) {
                 if (MH_EnableHook(target) == MH_OK) {
-                    std::cout << "[+] Hook " << hook.name << " installé !" << std::endl;
+                    std::cout << "[+] Hook " << hook.name << " installed!" << std::endl;
                 }
                 else {
-                    std::cout << "[-] Activation du hook " << hook.name << " échouée." << std::endl;
+                    std::cout << "[-] Failed to enable hook " << hook.name << "." << std::endl;
                     status = false;
                 }
             }
             else {
-                std::cout << "[-] Création du hook " << hook.name << " échouée. (Code: " << createStatus << ")" << std::endl;
+                std::cout << "[-] Failed to create hook " << hook.name << ". (Code: " << createStatus << ")" << std::endl;
                 status = false;
             }
         }
         if (!status) {
-            std::cout << "[~] Échec, tentative suivante (" << attempts + 1 << "/10)...\n";
+            std::cout << "[~] Failed, trying again (" << attempts + 1 << "/10)...\n";
             Sleep(2500);
         }
     }
 
     if (status) {
-        std::cout << "[+] Unlock all activé correctement." << std::endl;
-    } else {
-        std::cout << "[-] Impossible d'activer tous les hooks après 10 tentatives." << std::endl;
+        std::cout << "[+] Unlock all successfully activated." << std::endl;
+    }
+    else {
+        std::cout << "[-] Failed to activate all hooks after 10 attempts." << std::endl;
     }
     
     return 0;
